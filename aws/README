@@ -1,0 +1,11 @@
+configuring AWS environment.
+Set profile environment variable and configure profile(s) in ~/.aws/
+E.G.
+export AWS_PROFILE=PERSONAL
+export AWS_REGION=us-west-1
+
+Use Sub module "./test_modules_plan"
+to confirm resources of corresponding modules can be managed by executing init and plan from the test_modules directory
+`cd test_modules_plan
+terraform init
+terraform plan
