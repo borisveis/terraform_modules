@@ -1,7 +1,6 @@
 data "aws_region" "current" {}
 
 resource "aws_codebuild_project" "codebuild" {
-  count = var.artifact_type == "NO_ARTIFACTS" ? 1 : 0
 
   name          = var.name
   description   = "CodeBuild project for ${var.name}"
