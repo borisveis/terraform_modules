@@ -34,7 +34,7 @@ variable "artifact_packaging" {
 variable "artifact_type" {
   type        = string
   description = "The type of artifact (use NO_ARTIFACTS for GitHub, S3 for ZIP to S3)"
-  default     = "CODEPIPELINE"
+  default     = "NO_ARTIFACTS"
 }
 variable "artifact_location" {
   type        = string
