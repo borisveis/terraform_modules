@@ -66,12 +66,12 @@ variable "environment_variables" {
 variable "source_type" {
   type        = string
   description = "The type of source"
-  default     = "CODEPIPELINE"
+  default     = "GitHub"
 }
 variable "source_location" {
   type        = string
   description = "The source location (eg; github repo)"
-  default     = ""
+  default     = "git@github.com:borisveis/LLMTesting.git"
 }
 variable "source_branch" {
   type        = string
