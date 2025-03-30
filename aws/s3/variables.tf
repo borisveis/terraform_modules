@@ -4,7 +4,7 @@ variable "region" {
 }
 variable "bucket_name" {
   type = string
-  default = "borisvdefault_name"
+  default = "borisvdefault-name"
 }
 variable "acl" {
   type = string
