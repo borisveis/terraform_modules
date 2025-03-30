@@ -38,7 +38,7 @@ resource "aws_codebuild_project" "codebuild" {
 
   # Define artifacts (if any, based on the artifact_type variable)
   artifacts {
-    type                    = var.artifact_type == "NO_ARTIFACTS" ? "NO_ARTIFACTS" : var.artifact_type
+    type= "NO_ARTIFACTS"
     location                = var.artifact_location
     name                    = var.artifact_name
     path                    = var.artifact_path
