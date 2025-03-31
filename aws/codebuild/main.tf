@@ -33,17 +33,14 @@ resource "aws_codebuild_project" "codebuild" {
   }
 
   # Conditionally add the artifacts block if necessary
-  dynamic "artifacts" {
-    for_each = var.artifact_type != "NO_ARTIFACTS" ? [1] : []
-
-    content {
-      type                    = var.artifact_type
-      location                = var.artifact_location
-      name                    = var.artifact_name
-      path                    = var.artifact_path
-      packaging               = var.artifact_packaging
-      namespace_type         = var.artifact_namespace_type
-      override_artifact_name = var.artifact_override_name
-    }
+  artifacts {
+    type = var.artifact_type
+    # Include the other artifact-related attributes only if artifact_type is not NO_ARTIFACTS
+    location                = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_location : null
+    name                    = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_name : null
+    path                    = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_path : null
+    packaging               = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_packaging : null
+    namespace_type         = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_namespace_type : null
+    override_artifact_name = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_override_name : null
   }
 }
