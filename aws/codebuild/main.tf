@@ -1,39 +1,34 @@
 data "aws_region" "current" {}
 
 resource "aws_codebuild_project" "codebuild" {
+  name            = var.name
+  description     = "CodeBuild project for ${var.name}"
+  build_timeout   = var.build_timeout
+  service_role    = var.service_role_arn
+  source_version  = var.source_branch
 
-  name           = var.name
-  description    = "CodeBuild project for ${var.name}"
-  build_timeout  = var.build_timeout
-  service_role   = var.service_role_arn
-  source_version = var.source_branch
-
-  # GitHub as the source
   source {
-    type = "GITHUB"               # GitHub as the source type
-    location = var.source_location    # URL of the GitHub repo
-    buildspec = var.buildspec          # Path to your buildspec file
-    git_clone_depth = 1                  # Limit git clone depth to the latest commit
+    type           = "GITHUB"
+    location       = var.source_location
+    buildspec      = var.buildspec
+    git_clone_depth = 1
   }
 
-  # Environment block to define the build environment
   environment {
-    compute_type = var.codebuild_computeType  # Compute type (e.g., BUILD_GENERAL1_SMALL)
-    image = var.codebuild_image       # Docker image to use for the build
-    type = "LINUX_CONTAINER"         # Environment type
+    compute_type                = var.codebuild_computeType
+    image                       = var.codebuild_image
+    type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
-    privileged_mode             = var.privileged_mode       # Docker-in-Docker for privileged builds
+    privileged_mode             = var.privileged_mode
   }
 
   dynamic "vpc_config" {
     for_each = length(var.vpc_id) > 0 ? [var.vpc_id] : []
 
     content {
-      vpc_id             = var.vpc_id
-      subnets            = var.vpc_subnets
-      security_group_ids = var.vpc_security_group_ids
+      vpc_id               = var.vpc_id
+      subnets              = var.vpc_subnets
+      security_group_ids   = var.vpc_security_group_ids
     }
   }
-
-  # Define artifacts (if any, based on the artifact_type variable)
 }
