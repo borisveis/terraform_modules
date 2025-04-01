@@ -1,1 +1,0 @@
-{"Modules":[{"Key":"","Source":"","Dir":"."},{"Key":"codebuild","Source":"../aws/codebuild","Dir":"../aws/codebuild"},{"Key":"s3","Source":"../aws/s3","Dir":"../aws/s3"}]}
