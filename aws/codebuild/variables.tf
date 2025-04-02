@@ -34,7 +34,7 @@ variable "artifact_packaging" {
 variable "artifact_type" {
   type        = string
   description = "The type of artifact (use NO_ARTIFACTS for GitHub, S3 for ZIP to S3)"
-  default     = "CODEPIPELINE"
+  default     = "NO_ARTIFACTS"
 }
 variable "artifact_location" {
   type        = string
@@ -66,12 +66,12 @@ variable "environment_variables" {
 variable "source_type" {
   type        = string
   description = "The type of source"
-  default     = "CODEPIPELINE"
+  default     = "GitHub"
 }
 variable "source_location" {
   type        = string
   description = "The source location (eg; github repo)"
-  default     = ""
+  default     = "git@github.com:borisveis/LLMTesting.git"
 }
 variable "source_branch" {
   type        = string
