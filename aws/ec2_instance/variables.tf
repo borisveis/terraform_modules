@@ -3,9 +3,6 @@ variable "aws_region" {
   type        = string
   default     = "us-west-1"
 }
-variable "cidr_block" {
-  default = "172.31.0.0/16"
-}
 
 variable "instance_type" {
   description = "Type of EC2 instance to provision"
@@ -18,6 +15,9 @@ variable "instance_name" {
   type        = string
   default     = "free-tier-linux-instance"
 }
-variable "subnet_name" {
-  default = "default-subnet"
+variable "subnet" {
+}
+variable "associate_public_ip_address" {
+  type = bool
+  default = false
 }

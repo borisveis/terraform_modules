@@ -5,7 +5,10 @@ export AWS_PROFILE=PERSONAL
 export AWS_REGION=us-west-1
 
 Use Sub module "./test_modules_plan"
-to confirm resources of corresponding modules can be managed by executing init and plan from the test_modules directory
-`cd test_modules_plan
-terraform init
-terraform plan
+test_modules_plan is the root directory of Terraform used to test the terraform modules in the <root>/aws/modules directory
+A successful apply implies modules are stable and can be consumed by downstream dependencies.
+
+`cd test_modules_plan'
+'terraform init'
+'terraform plan'
+optional: 'terraform apply -'
