@@ -167,3 +167,4 @@ test_modules_plan/planfile.out
 test_modules_plan/.terraform/providers/registry.terraform.io/hashicorp/aws/5.93.0/darwin_arm64/terraform-provider-aws_v5.93.0_x5
 test_modules_plan/terraform.tfstate
 test_modules_plan/terraform.tfstate.backup
+test_modules_plan/.terraform/modules/modules.json

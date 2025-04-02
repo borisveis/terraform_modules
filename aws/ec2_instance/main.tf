@@ -35,11 +35,12 @@ data "aws_ami" "latest_amazon_linux" {
   }
 }
 
-resource "aws_instance" "test_module" {
+resource "aws_instance" "ec2_instance" {
   ami           = data.aws_ami.latest_amazon_linux.id
   instance_type = var.instance_type
 
   subnet_id = aws_subnet.default_subnet.id
+  associate_public_ip_address = true
 
   tags = {
     Name = var.instance_name
