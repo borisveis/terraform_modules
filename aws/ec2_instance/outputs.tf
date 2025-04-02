@@ -1,5 +1,5 @@
-output "test_module_ip_public_ip" {
-  value = aws_instance.test_module.public_ip
+output "instance_ip_public_ip" {
+  value = aws_instance.ec2_instance.public_ip
 }
 output "wev_ip_associate_public_ip_address" {
 
