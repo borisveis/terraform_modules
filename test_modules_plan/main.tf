@@ -76,3 +76,8 @@ module "ec2" {
   source = "../aws/ec2_instance"
   subnet=aws_subnet.default_subnet
 }
+module "iam_role" {
+source = "../aws/iam_role"
+role_name = "my_role_name"
+
+}
