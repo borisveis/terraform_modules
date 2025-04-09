@@ -168,3 +168,4 @@ test_modules_plan/.terraform/providers/registry.terraform.io/hashicorp/aws/5.93.
 test_modules_plan/terraform.tfstate
 test_modules_plan/terraform.tfstate.backup
 test_modules_plan/.terraform/modules/modules.json
+/test_modules_plan/.terraform
