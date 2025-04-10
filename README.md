@@ -34,3 +34,4 @@ Implementation of the modules is validated by the terraform in ./test_modules_pl
 2. Upload model to S3 triggers lambda
 3. Lambda will execute rest calls to GPT.
 4. Codebuild executes tests in repo
+5. ??Interop with Terratest??
