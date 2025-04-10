@@ -25,4 +25,12 @@ Implementation of the modules is validated by the terraform in ./test_modules_pl
         terraform destroy -auto-approve
     Alternatively execute the provided script which applies and destroys any deployed resources automatically
         test_modules_plan
-        sh ./test_modules_plan/terraform_appy_with_auto_destroy_if_fail.sh
+        sh ./test_modules_plan/terraform_appy_with_auto_destroy_if_fail.sh*
+
+***Codepipeline phases**
+
+1. Get clone code from github
+3. ??Deploy lambda that will trigger when model in S3 is updated.
+2. Upload model to S3 triggers lambda
+3. Lambda will execute rest calls to GPT.
+4. Codebuild executes tests in repo
