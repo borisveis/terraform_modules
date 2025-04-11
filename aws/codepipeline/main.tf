@@ -1,5 +1,5 @@
 resource "aws_codepipeline" "custom_pipeline" {
-  name     = "var.name"
+  name     = var.name
   role_arn = var.role_arn
 
   artifact_store {
@@ -9,19 +9,14 @@ resource "aws_codepipeline" "custom_pipeline" {
 
   stage {
     name = "Source"
-    action {
-      name            = "Source"
-      action_type_id  = "AWS::CodePipeline::ActionType"
-      run_order       = 1
-      configuration   = {
-        S3Bucket    = "source-bucket"   # Update with your S3 source configuration
-        S3ObjectKey = "source.zip"      # Update with your object key if needed
-      }
-      output_artifacts = ["source_output"]
-      input_artifacts  = []
-      role_arn         = var.role_arn
-    }
+    
   }
+  action_type_id {
+  category = "Source"
+  owner    = "AWS"
+  provider = "S3"
+  version  = "1"
+}
 
   stage {
     name = "Build"
