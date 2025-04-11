@@ -1,14 +1,10 @@
-#create secrets based on the specified json file
-#This block is commented because it acrues a minum AWS charge e=after creation. 
-# module "secrets" {
-#   source            = "../aws/secrets"
-#   secrets_json_path = "../../secrets.json"
-#   name              = "Terraform_test_run"
-
-# }
-
-
 # default IAM role for testing purposes
+module "secrets" {
+  source            = "../aws/secrets"
+  secrets_json_path = "../../secrets.json"
+  name              = "Terraform_test_run"
+
+}
 resource "aws_iam_role" "codebuild_role" {
   name = "CodeBuildServiceRole"
 
