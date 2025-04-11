@@ -169,4 +169,4 @@ test_modules_plan/terraform.tfstate
 test_modules_plan/terraform.tfstate.backup
 test_modules_plan/.terraform/modules/modules.json
 /test_modules_plan/.terraform
-/.vscode
+*.hcl
