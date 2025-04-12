@@ -1,10 +1,10 @@
 # default IAM role for testing purposes
-module "secrets" {
-  source            = "../aws/secrets"
-  secrets_json_path = "../../secrets.json"
-  name              = "Terraform_test_run"
+# module "secrets" {
+#   source            = "../aws/secrets"
+#   secrets_json_path = "../../secrets.json"
+#   name              = "Terraform_test_run"
 
-}
+# }
 resource "aws_iam_role" "codebuild_role" {
   name = "CodeBuildServiceRole"
 
