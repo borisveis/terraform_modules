@@ -1,7 +1,9 @@
-output "pipeline_name" {
-  value = aws_codepipeline.pipeline.name
+output "codepipeline_name" {
+  description = "The name of the CodePipeline"
+  value       = aws_codepipeline.custom_pipeline.name
 }
 
-output "pipeline_arn" {
-  value = aws_codepipeline.pipeline.arn
+output "codepipeline_arn" {
+  description = "The ARN of the CodePipeline"
+  value       = aws_codepipeline.custom_pipeline.arn
 }
