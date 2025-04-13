@@ -32,9 +32,10 @@ resource "aws_codebuild_project" "codebuild" {
     }
   }
 
-    artifacts {
+  # Conditionally add the artifacts block if necessary
+  artifacts {
     type = var.artifact_type
-      location                = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_location : null
+        location                = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_location : null
     name                    = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_name : null
     path                    = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_path : null
     packaging               = var.artifact_type != "NO_ARTIFACTS" ? var.artifact_packaging : null
