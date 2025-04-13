@@ -1,4 +1,4 @@
-# Pull the default VPC
+
 data "aws_vpc" "aws_vpc" {
   filter {
     name   = "isDefault"
@@ -6,7 +6,6 @@ data "aws_vpc" "aws_vpc" {
   }
 }
 
-# Subnet for EC2 (required by ec2_instance module)
 resource "aws_subnet" "default_subnet" {
   vpc_id                  = data.aws_vpc.aws_vpc.id
   cidr_block              = "172.31.0.0/16"
@@ -18,11 +17,6 @@ resource "aws_subnet" "default_subnet" {
   }
 }
 
-############################################
-# IAM ROLES AND POLICIES
-############################################
-
-# CodeBuild IAM Role
 resource "aws_iam_role" "codebuild_role" {
   name = "CodeBuildServiceRole"
 
@@ -53,13 +47,11 @@ resource "aws_iam_policy" "codebuild_policy" {
   })
 }
 
-# Attach CodeBuild Policy
 resource "aws_iam_role_policy_attachment" "codebuild_role_attach" {
   role       = aws_iam_role.codebuild_role.name
   policy_arn = aws_iam_policy.codebuild_policy.arn
 }
 
-# CodePipeline IAM Role
 resource "aws_iam_role" "codepipeline_role" {
   name = "CodePipelineServiceRole"
 
@@ -75,7 +67,6 @@ resource "aws_iam_role" "codepipeline_role" {
   })
 }
 
-# Attach predefined AWS policies to CodePipeline role
 resource "aws_iam_role_policy_attachment" "codepipeline_policy_attach" {
   role       = aws_iam_role.codepipeline_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSCodePipelineFullAccess"
@@ -86,24 +77,17 @@ resource "aws_iam_role_policy_attachment" "s3_policy_attach" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
 }
 
-############################################
-# MODULES
-############################################
-
-# Secrets Manager: stores GitHub token
 module "secrets" {
   source            = "../aws/secrets"
   secrets_json_path = "../../secrets.json"
   name              = "Terraform_test_run"
 }
 
-# S3 Bucket for artifacts
 module "s3" {
   source      = "../aws/s3"
   bucket_name = "teratest-test"
 }
 
-# CodeBuild
 module "codebuild" {
   source           = "../aws/codebuild"
   name             = "codebuild_default_name"
@@ -113,19 +97,16 @@ module "codebuild" {
   artifact_type    = "NO_ARTIFACTS"
 }
 
-# EC2 (for test purposes)
 module "ec2" {
   source = "../aws/ec2_instance"
   subnet = aws_subnet.default_subnet
 }
 
-# IAM Role Module (optional/custom role)
 module "iam_role" {
   source    = "../aws/iam_role"
   role_name = "my_role_name"
 }
 
-# CodePipeline (GitHub → Build → Deploy)
 module "code_pipeline" {
   source            = "../aws/codepipeline"
   name              = "codebuild_default_name"
@@ -140,10 +121,6 @@ module "code_pipeline" {
     type     = "S3"
   }
 }
-
-############################################
-# OUTPUTS
-############################################
 
 output "bucket_arn" {
   value = module.s3.bucket_arn

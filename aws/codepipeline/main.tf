@@ -53,7 +53,7 @@ resource "aws_codepipeline" "custom_pipeline" {
       category         = "Source"
       owner            = "ThirdParty"
       provider         = "GitHub"
-      version          = "1" # Ensure this is key-value format (version = "1")
+      version          = "1"
       output_artifacts = ["source_output"]
       configuration = {
         Owner      = var.github_owner
@@ -74,7 +74,7 @@ resource "aws_codepipeline" "custom_pipeline" {
       provider         = "CodeBuild"
       input_artifacts  = ["source_output"]
       output_artifacts = ["build_output"]
-      version          = "1" # Ensure this is key-value format (version = "1")
+      version          = "1"
       configuration = {
         ProjectName = var.name
       }
@@ -90,7 +90,7 @@ resource "aws_codepipeline" "custom_pipeline" {
       owner           = "AWS"
       provider        = "CloudFormation"
       input_artifacts = ["build_output"]
-      version         = "1" # Ensure this is key-value format (version = "1")
+      version         = "1"
       configuration = {
         ActionMode     = "CHANGE_SET_REPLACE"
         StackName      = "placeholder-stack"
