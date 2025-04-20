@@ -8,12 +8,4 @@ resource "aws_secretsmanager_secret_version" "github_token_value" {
   secret_string = file(var.secrets_json_path)
 }
 
-variable "name" {
-  description = "The name of the secret in Secrets Manager"
-  type        = string
-}
 
-variable "secrets_json_path" {
-  description = "Path to the JSON file containing the GitHub token"
-  type        = string
-}

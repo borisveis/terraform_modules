@@ -1,4 +1,14 @@
-# main.tf
+# Create a local to append to the secret manager's name to make it unique
+locals {
+  timestamp = formatdate("YYYYMMDDhhmms", timestamp())
+}
+#create secrets based on the specified json file
+#This block is commented because it acrues a minum AWS charge e=after creation. 
+module "secrets" {
+  source            = "../aws/secrets"
+  secrets_json_path = "../../secrets.json"
+  name              = "Terraform_test_run-${local.timestamp}"
+}
 provider "aws" {
   region = "us-west-1"
   default_tags {
