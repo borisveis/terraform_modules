@@ -1,139 +1,206 @@
+# main.tf
+provider "aws" {
+  region = "us-west-1"
+  default_tags {
+    tags = {
+      Environment = "Dev"
+      Project     = "CI/CD Pipeline"
+    }
+  }
+}
 
-data "aws_vpc" "aws_vpc" {
+#Data Sources
+data "aws_vpc" "default" {
   filter {
     name   = "isDefault"
     values = ["true"]
   }
 }
 
-resource "aws_subnet" "default_subnet" {
-  vpc_id                  = data.aws_vpc.aws_vpc.id
-  cidr_block              = "172.31.0.0/16"
-  availability_zone       = "us-west-1a"
-  map_public_ip_on_launch = true
-
-  tags = {
-    Name = "test_modules"
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
   }
+}
+
+#S3
+resource "aws_s3_bucket" "pipeline_artifacts" {
+  bucket        = "borisveispipelineartifacttesting"
+  force_destroy = false
+
+  
+
+  
+}
+
+#IAM Roles
+resource "aws_iam_role" "codepipeline_role" {
+  name               = "CodePipelineServiceRole"
+  assume_role_policy = data.aws_iam_policy_document.codepipeline_assume.json
 }
 
 resource "aws_iam_role" "codebuild_role" {
-  name = "CodeBuildServiceRole"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
-      Principal = {
-        Service = "codebuild.amazonaws.com"
-      }
-    }]
-  })
+  name               = "CodeBuildServiceRole"
+  assume_role_policy = data.aws_iam_policy_document.codebuild_assume.json
 }
 
-# CodeBuild Policy
-resource "aws_iam_policy" "codebuild_policy" {
-  name        = "CodeBuildPolicy"
-  description = "Policy for CodeBuild Project"
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Action   = ["s3:*", "logs:*", "codebuild:*"]
-      Effect   = "Allow"
-      Resource = "*"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "codebuild_role_attach" {
-  role       = aws_iam_role.codebuild_role.name
-  policy_arn = aws_iam_policy.codebuild_policy.arn
-}
-
-resource "aws_iam_role" "codepipeline_role" {
-  name = "CodePipelineServiceRole"
-
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [{
-      Effect = "Allow"
-      Principal = {
-        Service = "codepipeline.amazonaws.com"
-      }
-      Action = "sts:AssumeRole"
-    }]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "codepipeline_policy_attach" {
-  role       = aws_iam_role.codepipeline_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AWSCodePipelineFullAccess"
-}
-
-resource "aws_iam_role_policy_attachment" "s3_policy_attach" {
-  role       = aws_iam_role.codepipeline_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
-}
-
-module "secrets" {
-  source            = "../aws/secrets"
-  secrets_json_path = "../../secrets.json"
-  name              = "Terraform_test_run"
-}
-
-module "s3" {
-  source      = "../aws/s3"
-  bucket_name = "teratest-test"
-}
-
-module "codebuild" {
-  source           = "../aws/codebuild"
-  name             = "codebuild_default_name"
-  source_location  = "https://github.com/borisveis/LLMTesting.git"
-  codebuild_image  = "aws/codebuild/standard:4.0"
-  service_role_arn = aws_iam_role.codebuild_role.arn
-  artifact_type    = "NO_ARTIFACTS"
-}
-
-module "ec2" {
-  source = "../aws/ec2_instance"
-  subnet = aws_subnet.default_subnet
-}
-
-module "iam_role" {
-  source    = "../aws/iam_role"
-  role_name = "my_role_name"
-}
-
-module "code_pipeline" {
-  source            = "../aws/codepipeline"
-  name              = "codebuild_default_name"
-  github_secret_arn = module.secrets.github_token_secret_arn
-  github_owner      = "borisveis"
-  github_repo       = "data_synthesizer"
-  github_branch     = "main"
-  role_arn          = aws_iam_role.codepipeline_role.arn
-
-  artifact_store = {
-    location = module.s3.bucket_name
-    type     = "S3"
+# --- IAM Policies ---
+data "aws_iam_policy_document" "codepipeline_assume" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["codepipeline.amazonaws.com"]
+    }
   }
 }
 
-output "bucket_arn" {
-  value = module.s3.bucket_arn
+data "aws_iam_policy_document" "codebuild_assume" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["codebuild.amazonaws.com"]
+    }
+  }
 }
 
-output "codebuild_arn" {
-  value = module.codebuild.codebuild_arn
+resource "aws_iam_role_policy" "codepipeline_policy" {
+  name = "CodePipelinePolicy"
+  role = aws_iam_role.codepipeline_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["s3:GetObject", "s3:GetObjectVersion", "s3:PutObject"],
+        Effect   = "Allow",
+        Resource = "${aws_s3_bucket.pipeline_artifacts.arn}/*"
+      },
+      {
+        Action   = ["codebuild:BatchGetBuilds", "codebuild:StartBuild"],
+        Effect   = "Allow",
+        Resource = aws_codebuild_project.terraform.arn
+      }
+    ]
+  })
 }
 
-output "secrets_arn" {
-  value = module.secrets.secret_arn
+resource "aws_iam_role_policy" "codebuild_policy" {
+  name = "CodeBuildPolicy"
+  role = aws_iam_role.codebuild_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = ["s3:GetObject", "s3:GetObjectVersion", "s3:PutObject"],
+        Effect   = "Allow",
+        Resource = "${aws_s3_bucket.pipeline_artifacts.arn}/*"
+      },
+      {
+        Action   = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents"],
+        Effect   = "Allow",
+        Resource = "arn:aws:logs:us-west-1:*:log-group:/aws/codebuild/${aws_codebuild_project.terraform.name}:*"
+      }
+    ]
+  })
 }
 
-output "pipeline_name" {
-  value = module.code_pipeline.pipeline_name
+#CodeBuild Project
+resource "aws_codebuild_project" "terraform" {
+  name          = "terraform-build"
+  description   = "Terraform validation and execution"
+  service_role  = aws_iam_role.codebuild_role.arn
+  build_timeout = "10"
+
+  artifacts {
+    type = "CODEPIPELINE"
+  }
+
+  environment {
+    compute_type    = "BUILD_GENERAL1_SMALL"
+    image           = "hashicorp/terraform:1.3.7"
+    type            = "LINUX_CONTAINER"
+    privileged_mode = true
+
+    environment_variable {
+      name  = "TF_IN_AUTOMATION"
+      value = "true"
+    }
+  }
+
+  source {
+    type      = "CODEPIPELINE"
+    buildspec = <<-EOT
+      version: 0.2
+      phases:
+        install:
+          commands:
+            - terraform --version
+        build:
+          commands:
+            - terraform init
+            - terraform validate
+            - terraform plan -out=tfplan
+      artifacts:
+        files:
+          - tfplan
+    EOT
+  }
+}
+
+#CodePipeline
+resource "aws_codepipeline" "terraform" {
+  name     = "terraform-infra-pipeline"
+  role_arn = aws_iam_role.codepipeline_role.arn
+
+  artifact_store {
+    location = aws_s3_bucket.pipeline_artifacts.bucket
+    type     = "S3"
+  }
+
+  stage {
+    name = "Source"
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "CodeCommit"
+      version          = "1"
+      output_artifacts = ["source_output"]
+
+      configuration = {
+        RepositoryName       = "my-repo" # Update with real repo
+        BranchName           = "main"
+        PollForSourceChanges = false
+      }
+    }
+  }
+
+  stage {
+    name = "Validate"
+    action {
+      name             = "Validate"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["source_output"]
+      output_artifacts = ["validated_output"]
+      version          = "1"
+
+      configuration = {
+        ProjectName = aws_codebuild_project.terraform.name
+      }
+    }
+  }
+}
+
+output "pipeline_arn" {
+  value = aws_codepipeline.terraform.arn
+}
+
+output "artifact_bucket" {
+  value = aws_s3_bucket.pipeline_artifacts.bucket
 }

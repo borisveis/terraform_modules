@@ -1,42 +1,4 @@
-variable "name" {
-  description = "The name of the CodePipeline"
-  type        = string
-  default     = "default_pipeline_name"
-}
-
-variable "role_arn" {
-  description = "The ARN of the IAM role that CodePipeline assumes"
-  type        = string
-}
-
-variable "artifact_store" {
-  description = "Artifact store configuration for CodePipeline"
-  type = object({
-    location = string
-    type     = string
-  })
-}
-
-variable "github_owner" {
-  description = "GitHub repository owner"
-  type        = string
-}
-
-variable "github_repo" {
-  description = "GitHub repository name"
-  type        = string
-}
-
-variable "github_branch" {
-  description = "Branch to use for deployment"
-  type        = string
-}
-
-variable "github_secret_arn" {
-  description = "ARN of the GitHub OAuth token stored in AWS Secrets Manager"
-  type        = string
-}
-resource "aws_codepipeline" "custom_pipeline" {
+resource "aws_codepipeline" "code_pipeline" {
   name     = var.name
   role_arn = var.role_arn
 
@@ -106,6 +68,42 @@ resource "aws_codepipeline" "custom_pipeline" {
   }
 }
 
-output "pipeline_name" {
-  value = aws_codepipeline.custom_pipeline.name
+variable "name" {
+  description = "The name of the CodePipeline"
+  type        = string
+}
+
+variable "role_arn" {
+  description = "The ARN of the IAM role for the pipeline"
+  type        = string
+}
+
+variable "github_owner" {
+  description = "GitHub owner (username or org)"
+  type        = string
+}
+
+variable "github_repo" {
+  description = "GitHub repository name"
+  type        = string
+}
+
+variable "github_branch" {
+  description = "GitHub branch name"
+  type        = string
+}
+
+variable "github_secret_arn" {
+  description = "GitHub token ARN from Secrets Manager"
+  type        = string
+}
+
+variable "artifact_store_location" {
+  description = "S3 location for the artifact store"
+  type        = string
+}
+
+variable "artifact_store_type" {
+  description = "The type of artifact store"
+  type        = string
 }
