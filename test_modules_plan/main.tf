@@ -35,6 +35,11 @@ data "aws_subnets" "default" {
 }
 
 #S3
+module "test_bucket" {
+  source        = "../aws/s3"
+  bucket_name   = "test_bucket"
+  force_destroy = true
+}
 resource "aws_s3_bucket" "pipeline_artifacts" {
   bucket        = "borisveispipelineartifacttesting"
   force_destroy = false
